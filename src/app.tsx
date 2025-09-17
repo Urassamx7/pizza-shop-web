@@ -1,12 +1,8 @@
-import { Button } from './components/ui/button'
+import { RouterProvider } from 'react-router-dom'
+import { router } from './routes'
 
 export function App() {
   return (
-    <>
-      <h1 className="text-2xl text-zinc-900 text-shadow-black underline">
-        Hello world!
-      </h1>
-      <Button variant="destructive">Click</Button>
-    </>
+    <RouterProvider router={router} />
   )
 }
