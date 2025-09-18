@@ -9,6 +9,8 @@ import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
+import { signIn } from '@/api/sign-in'
 
 const signInFormData = z.object({
   email: z.email().min(6),
@@ -24,14 +26,16 @@ export const SignIn = () => {
     resolver: zodResolver(signInFormData),
     defaultValues: {
       email: '',
-
     },
+  })
+
+  const { mutateAsync: authenticate } = useMutation({
+    mutationFn: signIn,
   })
 
   async function handleSignIn({ email }: SignInFormData) {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      console.log({ email })
+      await authenticate({ email })
 
       toast.success('Enviamos um link de autenticação para o seu e-mail.', {
         action: {
