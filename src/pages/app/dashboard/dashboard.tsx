@@ -5,7 +5,8 @@ import { DayOrdersAmountCard } from './card/day-orders-amount'
 import {
   MonthCanceledOrdersAmountCard,
 } from './card/month-canceled-orders-amount'
-import { RevenueChart } from './revenue-chart'
+import { RevenueChart } from './chart/revenue-chart'
+import { PopularProductChart } from './chart/popular-product'
 
 export const Dashboard = () => (
   <>
@@ -21,6 +22,7 @@ export const Dashboard = () => (
       </div>
       <div className="grid grid-cols-9 gap-4">
         <RevenueChart />
+        <PopularProductChart />
       </div>
     </div>
   </>

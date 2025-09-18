@@ -11,6 +11,7 @@ import {
   LineChart,
   XAxis,
   YAxis,
+  CartesianGrid,
   Line,
   Tooltip,
 } from 'recharts'
@@ -62,6 +63,9 @@ export function RevenueChart() {
               dy={16}
               tickLine={false}
             />
+
+            <CartesianGrid vertical={false} className="stroke-muted" />
+
             <Line
               type="linear"
               strokeWidth={2}
