@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -18,6 +18,7 @@ const signInFormData = z.object({
 type SignInFormData = z.infer<typeof signInFormData>
 
 export const SignIn = () => {
+  const [searchParams] = useSearchParams()
   const {
     register,
     handleSubmit,
@@ -25,7 +26,7 @@ export const SignIn = () => {
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInFormData),
     defaultValues: {
-      email: '',
+      email: searchParams.get('email') ?? '',
     },
   })
 
