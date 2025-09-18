@@ -13,6 +13,8 @@ import { useQuery } from '@tanstack/react-query'
 import { getProfile } from '@/api/get-profile'
 import { getManagedRestaurant } from '@/api/get-managed-restaurant'
 import { Skeleton } from './ui/skeleton'
+import { Dialog, DialogTrigger } from './ui/dialog'
+import { StoreProfileDialog } from './store-profile-dialog'
 
 export function AccountMenu() {
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
@@ -31,7 +33,8 @@ export function AccountMenu() {
   })
 
   return (
-    <DropdownMenu>
+    <Dialog>
+      <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
@@ -62,15 +65,22 @@ export function AccountMenu() {
 
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+
+        <DialogTrigger asChild>
+          <DropdownMenuItem>
           <Building className="w-4 h-4 mr-2" />
           <span>Perfil da loja</span>
-        </DropdownMenuItem>
+          </DropdownMenuItem>
+        </DialogTrigger>
+
         <DropdownMenuItem className="text-rose-500 dark:text-rose-400">
           <LogOut className="w-4 h-4 mr-2 text-rose-500 dark:text-rose-400" />
           <span className="text-rose-500 dark:text-rose-400">Sair</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
-    </DropdownMenu>
+      </DropdownMenu>
+
+      <StoreProfileDialog />
+    </Dialog>
   )
 }
