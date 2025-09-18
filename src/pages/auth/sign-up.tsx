@@ -58,8 +58,8 @@ export const SignUp = () => {
       <div className="p-8">
 
         <Button asChild variant="ghost" className="absolute right-8 top-8">
-          <Link to="/sign-up" className="">
-            Novo estabelecimento
+          <Link to="/sign-in" className="">
+            Fazer login
           </Link>
         </Button>
 

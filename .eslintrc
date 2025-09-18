@@ -7,6 +7,7 @@
     ],
     "rules": {
         "simple-import-sort/imports": "error",
+        "max-len":"off"
     },
     "parserOptions": {
         "sourceType": "module",
