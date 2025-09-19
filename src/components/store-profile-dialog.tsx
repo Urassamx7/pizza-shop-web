@@ -1,3 +1,4 @@
+/* eslint-disable @stylistic/max-len */
 import { DialogTitle } from '@radix-ui/react-dialog'
 import {
   DialogClose,
@@ -10,8 +11,8 @@ import { Button } from './ui/button'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { Textarea } from './ui/textarea'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { getManagedRestaurant } from '@/api/get-managed-restaurant'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { getManagedRestaurant, type GetManagetRestaurantResponse } from '@/api/get-managed-restaurant'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import z from 'zod'
@@ -26,6 +27,7 @@ const storeProfileSchema = z.object({
 type StoreProfileDTO = z.infer<typeof storeProfileSchema>
 
 export function StoreProfileDialog() {
+  const queryClient = useQueryClient()
   const {
     data: managedRestaurant,
   } = useQuery({
@@ -48,12 +50,24 @@ export function StoreProfileDialog() {
 
   const { mutateAsync: updateProfileFn } = useMutation({
     mutationFn: updateProfile,
+    onSuccess(_, { description, name }) {
+      const cached = queryClient.getQueryData<GetManagetRestaurantResponse>(['managed-restaurant'])
+
+      if (cached) {
+        queryClient.setQueryData<GetManagetRestaurantResponse>(['managed-restaurant'], {
+          ...cached,
+          name,
+          description,
+        })
+      }
+    },
   })
 
   async function handleUpdateProfile({ description, name }: StoreProfileDTO) {
     try {
       await updateProfileFn({ name, description })
 
+      // queryClient.invalidateQueries({ queryKey: ['managed-restaurant'] })
       toast.success('Perfil atualizado com sucesso!')
     } catch (error) {
       toast.error('Falha ao atualizar perfil. Tente novamente.')
