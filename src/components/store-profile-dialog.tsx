@@ -1,4 +1,3 @@
-/* eslint-disable @stylistic/max-len */
 import { DialogTitle } from '@radix-ui/react-dialog'
 import {
   DialogClose,
@@ -12,7 +11,10 @@ import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { Textarea } from './ui/textarea'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getManagedRestaurant, type GetManagetRestaurantResponse } from '@/api/get-managed-restaurant'
+import {
+  getManagedRestaurant,
+  type GetManagetRestaurantResponse,
+} from '@/api/get-managed-restaurant'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import z from 'zod'
@@ -21,16 +23,14 @@ import { toast } from 'sonner'
 
 const storeProfileSchema = z.object({
   name: z.string().min(3),
-  description: z.string(),
+  description: z.string().nullable(),
 })
 
 type StoreProfileDTO = z.infer<typeof storeProfileSchema>
 
 export function StoreProfileDialog() {
   const queryClient = useQueryClient()
-  const {
-    data: managedRestaurant,
-  } = useQuery({
+  const { data: managedRestaurant } = useQuery({
     queryKey: ['managed-restaurant'],
     queryFn: getManagedRestaurant,
     staleTime: Infinity,
@@ -48,16 +48,39 @@ export function StoreProfileDialog() {
     },
   })
 
-  const { mutateAsync: updateProfileFn } = useMutation({
-    mutationFn: updateProfile,
-    onSuccess(_, { description, name }) {
-      const cached = queryClient.getQueryData<GetManagetRestaurantResponse>(['managed-restaurant'])
+  function updateManagedRestaurantCache({
+    description,
+    name,
+  }: StoreProfileDTO) {
+    const cached = queryClient.getQueryData<GetManagetRestaurantResponse>([
+      'managed-restaurant',
+    ])
 
-      if (cached) {
-        queryClient.setQueryData<GetManagetRestaurantResponse>(['managed-restaurant'], {
+    if (cached) {
+      queryClient.setQueryData<GetManagetRestaurantResponse>(
+        ['managed-restaurant'],
+        {
           ...cached,
           name,
           description,
+        },
+      )
+    }
+    return { cached }
+  }
+
+  const { mutateAsync: updateProfileFn } = useMutation({
+    mutationFn: updateProfile,
+    onMutate({ description, name }) {
+      const { cached } = updateManagedRestaurantCache({ description, name })
+
+      return { previousRestaurantProfileData: cached }
+    },
+    onError(_, __, context) {
+      if (context?.previousRestaurantProfileData) {
+        updateManagedRestaurantCache({
+          description: context.previousRestaurantProfileData.description,
+          name: context.previousRestaurantProfileData.name,
         })
       }
     },
@@ -67,7 +90,6 @@ export function StoreProfileDialog() {
     try {
       await updateProfileFn({ name, description })
 
-      // queryClient.invalidateQueries({ queryKey: ['managed-restaurant'] })
       toast.success('Perfil atualizado com sucesso!')
     } catch (error) {
       toast.error('Falha ao atualizar perfil. Tente novamente.')
@@ -86,36 +108,31 @@ export function StoreProfileDialog() {
       <form onSubmit={handleSubmit(handleUpdateProfile)}>
         <div className="space-y-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right" htmlFor="name">Nome</Label>
+            <Label className="text-right" htmlFor="name">
+              Nome
+            </Label>
             <Input id="name" className="col-span-3" {...register('name')} />
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label
-              className="text-right" htmlFor="description"
-            >Descrição
+            <Label className="text-right" htmlFor="description">
+              Descrição
             </Label>
             <Textarea
-              id="description" className="col-span-3"
+              id="description"
+              className="col-span-3"
               {...register('description')}
             />
           </div>
-
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button
-              variant="ghost"
-              type="button"
-              disabled={isSubmitting}
-            >Cancelar
+            <Button variant="ghost" type="button" disabled={isSubmitting}>
+              Cancelar
             </Button>
           </DialogClose>
-          <Button
-            type="submit"
-            variant="success"
-            disabled={isSubmitting}
-          >Salvar
+          <Button type="submit" variant="success" disabled={isSubmitting}>
+            Salvar
           </Button>
         </DialogFooter>
       </form>
