@@ -1,10 +1,13 @@
+/* eslint-disable @stylistic/max-len */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { getPopularProducts } from '@/api/get-popular-products'
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { useQuery } from '@tanstack/react-query'
 import { BarChart } from 'lucide-react'
 import {
   ResponsiveContainer,
@@ -13,14 +16,6 @@ import {
   Cell,
 } from 'recharts'
 import colors from 'tailwindcss/colors'
-
-const data = [
-  { product: 'Pizza Margherita', amount: 123 },
-  { product: 'Pizza Pepperoni', amount: 240 },
-  { product: 'Pizza Quatro Queijos', amount: 92 },
-  { product: 'Pizza Calabresa', amount: 100 },
-  { product: 'Pizza Portuguesa', amount: 101 },
-]
 
 const COLORS = [
   colors.sky[500],
@@ -31,6 +26,11 @@ const COLORS = [
 ]
 
 export function PopularProductChart() {
+  const { data: popularProducts } = useQuery({
+    queryKey: ['metrics', 'popular-products'],
+    queryFn: getPopularProducts,
+  })
+
   return (
     <Card className="col-span-3">
       <CardHeader className="flex items-center justify-between pb-8">
@@ -43,58 +43,60 @@ export function PopularProductChart() {
         </div>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={240}>
-          <PieChart>
+        {
+          popularProducts && (
+            <ResponsiveContainer width="100%" height={240}>
+              <PieChart>
 
-            <Pie
-              data={data}
-              dataKey="amount"
-              nameKey="product"
-              cx="50%"
-              cy="50%"
-              outerRadius={90}
-              innerRadius={64}
-              strokeWidth={8}
-              label={(props) => {
-                const {
-                  cx,
-                  cy,
-                  midAngle,
-                  innerRadius,
-                  outerRadius,
-                  value,
-                  index,
-                } = props as any
-                const RADIAN = Math.PI / 180
-                const radius = 12 + innerRadius + (outerRadius - innerRadius)
-                const x = cx + radius * Math.cos(-midAngle * RADIAN)
-                const y = cy + radius * Math.sin(-midAngle * RADIAN)
+                <Pie
+                  data={popularProducts}
+                  dataKey="amount"
+                  nameKey="product"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={90}
+                  innerRadius={64}
+                  strokeWidth={8}
+                  label={(props) => {
+                    const {
+                      cx,
+                      cy,
+                      midAngle,
+                      innerRadius,
+                      outerRadius,
+                      value,
+                      index,
+                    } = props as any
+                    const RADIAN = Math.PI / 180
+                    const radius = 12 + innerRadius + (outerRadius - innerRadius)
+                    const x = cx + radius * Math.cos(-midAngle * RADIAN)
+                    const y = cy + radius * Math.sin(-midAngle * RADIAN)
 
-                return (
-                  <text
-                    x={x}
-                    y={y}
-                    className="fill-muted-foreground text-xs"
-                    textAnchor={x > cx
-                      ? 'start'
-                      : 'end'}
-                    dominantBaseline="central"
-                  >
-                    {
-                        data[index].product.length > 12
-                          ? data[index].product
+                    return (
+                      <text
+                        x={x}
+                        y={y}
+                        className="fill-muted-foreground text-xs"
+                        textAnchor={x > cx
+                          ? 'start'
+                          : 'end'}
+                        dominantBaseline="central"
+                      >
+                        {
+                        popularProducts[index].product.length > 12
+                          ? popularProducts[index].product
                               .substring(0, 12)
                               .concat('...')
-                          : data[index].product
+                          : popularProducts[index].product
 }
-                    ({value})
-                  </text>
-                )
-              }}
-              labelLine={false}
-            >
-              {
-                    data.map((_, index) => {
+                        ({value})
+                      </text>
+                    )
+                  }}
+                  labelLine={false}
+                >
+                  {
+                    popularProducts.map((_, index) => {
                       return (
                         <Cell
                           key={`cell-${index}`}
@@ -104,10 +106,12 @@ export function PopularProductChart() {
                       )
                     })
                 }
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          )
+        }
       </CardContent>
     </Card>
   )
