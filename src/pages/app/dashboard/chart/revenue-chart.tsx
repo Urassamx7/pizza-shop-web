@@ -1,4 +1,5 @@
 /* eslint-disable @stylistic/jsx-props-no-multi-spaces */
+import { getDailyRevenue } from '@/api/get-daily-revenue'
 import {
   Card,
   CardContent,
@@ -6,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { useQuery } from '@tanstack/react-query'
 import {
   ResponsiveContainer,
   LineChart,
@@ -17,17 +19,12 @@ import {
 } from 'recharts'
 import colors from 'tailwindcss/colors'
 
-const data = [
-  { date: '10/12', revenue: 1200 },
-  { date: '11/12', revenue: 1500 },
-  { date: '12/12', revenue: 400 },
-  { date: '13/12', revenue: 1700 },
-  { date: '14/12', revenue: 1100 },
-  { date: '15/12', revenue: 1600 },
-  { date: '16/12', revenue: 2000 },
-]
-
 export function RevenueChart() {
+  const { data: dailyRevenueInPeriod } = useQuery({
+    queryKey: ['metrics', 'daily-revenue-in-period'],
+    queryFn: getDailyRevenue,
+  })
+
   return (
     <Card className="col-span-6">
       <CardHeader className="flex items-center justify-between pb-8">
@@ -40,42 +37,48 @@ export function RevenueChart() {
         </div>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={240}>
-          <LineChart
+        {
+          dailyRevenueInPeriod && (
+            <ResponsiveContainer width="100%" height={240}>
+              <LineChart
 
-            data={data}
-            style={{ fontSize: 12 }}
-          >
-            <YAxis
-              axisLine={false}
-              stroke="#888"
-              tickLine={false}
-              tickFormatter={(value: number) => value.toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-              })}
-              width={80}
-            />
+                data={dailyRevenueInPeriod}
+                style={{ fontSize: 12 }}
+              >
+                <YAxis
+                  axisLine={false}
+                  stroke="#888"
+                  tickLine={false}
+                  tickFormatter={
+                    (value: number) => (value / 100).toLocaleString('pt-PT', {
+                      style: 'currency',
+                      currency: 'MZN',
+                    })
+}
+                  width={80}
+                />
 
-            <XAxis
-              axisLine={false}
-              dataKey="date"
-              dy={16}
-              tickLine={false}
-            />
+                <XAxis
+                  axisLine={false}
+                  dataKey="date"
+                  dy={16}
+                  tickLine={false}
+                />
 
-            <CartesianGrid vertical={false} className="stroke-muted" />
+                <CartesianGrid vertical={false} className="stroke-muted" />
 
-            <Line
-              type="linear"
-              strokeWidth={2}
-              dataKey="revenue"
-              stroke={colors.violet[500]}
-            />
+                <Line
+                  type="linear"
+                  strokeWidth={2}
+                  dataKey="revenue"
+                  stroke={colors.violet[500]}
+                />
 
-            <Tooltip />
-          </LineChart>
-        </ResponsiveContainer>
+                <Tooltip />
+              </LineChart>
+            </ResponsiveContainer>
+          )
+        }
       </CardContent>
     </Card>
   )
