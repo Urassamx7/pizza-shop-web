@@ -6,9 +6,12 @@ export const api = axios.create({
   withCredentials: true,
 })
 
-// if (env.VITE_ENABLE_API_DELAY) {
-//   api.interceptors.request.use(async (config) => {
-//     await new Promise(resolve => setTimeout(resolve, 2000))
-//     return config
-//   })
-// }
+if (import.meta.env.DEV) {
+  console.log('Ambiente de desenvolvimento:', import.meta.env.DEV)
+  if (env.VITE_ENABLE_API_DELAY) {
+    api.interceptors.request.use(async (config) => {
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 3000))
+      return config
+    })
+  }
+}
