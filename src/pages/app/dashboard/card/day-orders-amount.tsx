@@ -1,10 +1,14 @@
 import { getDayOrdersAmount } from '@/api/get-day-orders-amount'
+import { MetricsCardSkeleton } from '@/components/skeleton/metric-card'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { useQuery } from '@tanstack/react-query'
 import { Utensils } from 'lucide-react'
 
 export function DayOrdersAmountCard() {
-  const { data: dayOrdersAmount } = useQuery({
+  const {
+    data: dayOrdersAmount,
+    isFetching: isLoadingDayOrdersAmount,
+  } = useQuery({
     queryKey: ['metrics', 'day-orders-amount'],
     queryFn: getDayOrdersAmount,
   })
@@ -21,6 +25,10 @@ export function DayOrdersAmountCard() {
         <Utensils className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent className="space-y-1">
+        {isLoadingDayOrdersAmount && (
+          <MetricsCardSkeleton />
+        )}
+
         {dayOrdersAmount && (
           <>
             <span

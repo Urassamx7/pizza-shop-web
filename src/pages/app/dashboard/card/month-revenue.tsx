@@ -1,4 +1,5 @@
 import { getMonthRevenue } from '@/api/get-month-revenue'
+import { MetricsCardSkeleton } from '@/components/skeleton/metric-card'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { useQuery } from '@tanstack/react-query'
 import { DollarSign } from 'lucide-react'
@@ -21,33 +22,37 @@ export function MonthRevenueCard() {
         <DollarSign className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent className="space-y-1">
-        {monthRevenue && (
-          <>
-            <span
-              className="text-2xl font-bold tracking-tight"
-            >
-              {
+        {monthRevenue
+          ? (
+            <>
+              <span
+                className="text-2xl font-bold tracking-tight"
+              >
+                {
                 (monthRevenue.revenue / 100).toLocaleString('pt-PT', {
                   style: 'currency',
                   currency: 'MZN',
                 })
               }
-            </span>
-            <p className="text-xs text-muted-foreground">
-              {monthRevenue.diffFromLastMonth >= 0
-                ? (
-                  <span
-                    className="text-emerald-500 dark:text-emerald-400"
-                  >+{monthRevenue.diffFromLastMonth}%
-                  </span>)
-                : (
-                  <span
-                    className="text-rose-500 dark:text-rose-400"
-                  >{monthRevenue.diffFromLastMonth}%
-                  </span>)} em relação ao mês anterior
-            </p>
-          </>
-        )}
+              </span>
+              <p className="text-xs text-muted-foreground">
+                {monthRevenue.diffFromLastMonth >= 0
+                  ? (
+                    <span
+                      className="text-emerald-500 dark:text-emerald-400"
+                    >+{monthRevenue.diffFromLastMonth}%
+                    </span>)
+                  : (
+                    <span
+                      className="text-rose-500 dark:text-rose-400"
+                    >{monthRevenue.diffFromLastMonth}%
+                    </span>)} em relação ao mês anterior
+              </p>
+            </>
+            )
+          : (
+            <MetricsCardSkeleton />
+            )}
 
       </CardContent>
     </Card>
