@@ -1,6 +1,7 @@
 /* eslint-disable @stylistic/jsx-closing-tag-location */
 import { getOrderDetails } from '@/api/get-order-details'
 import { OrderStatus } from '@/components/order-status'
+import { OrderDetailsSkeleton } from '@/components/skeleton/order-details'
 import {
   DialogContent,
   DialogDescription,
@@ -26,7 +27,7 @@ interface OrderDetailsProps {
 }
 
 export function OrderDetails({ orderId, open }:OrderDetailsProps) {
-  const { data: order, isLoading } = useQuery({
+  const { data: order, isLoading: isLoadingDetails } = useQuery({
     queryKey: ['order', orderId],
     queryFn: () => getOrderDetails({ orderId }),
     enabled: open,
@@ -40,6 +41,7 @@ export function OrderDetails({ orderId, open }:OrderDetailsProps) {
           Descrição do pedido
         </DialogDescription>
       </DialogHeader>
+      {isLoadingDetails && (<OrderDetailsSkeleton />)}
       {
         order && (<div className="space-y-6">
           <Table>
