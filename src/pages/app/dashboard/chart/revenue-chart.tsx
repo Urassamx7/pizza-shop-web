@@ -7,7 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { DateRangePicker } from '@/components/ui/date-range-picker'
+import { Label } from '@/components/ui/label'
 import { useQuery } from '@tanstack/react-query'
+import { subDays } from 'date-fns'
+import { useMemo, useState } from 'react'
+import type { DateRange } from 'react-day-picker'
 import {
   ResponsiveContainer,
   LineChart,
@@ -20,10 +25,27 @@ import {
 import colors from 'tailwindcss/colors'
 
 export function RevenueChart() {
-  const { data: dailyRevenueInPeriod } = useQuery({
-    queryKey: ['metrics', 'daily-revenue-in-period'],
-    queryFn: getDailyRevenue,
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subDays(new Date(), 7),
+    to: new Date(),
   })
+
+  const { data: dailyRevenueInPeriod } = useQuery({
+    queryKey: ['metrics', 'daily-revenue-in-period', dateRange],
+    queryFn: () => getDailyRevenue({
+      from: dateRange?.from,
+      to: dateRange?.to,
+    }),
+  })
+
+  const chartData = useMemo(() => {
+    return dailyRevenueInPeriod?.map(chartItem => {
+      return {
+        date: chartItem.date,
+        revenue: chartItem.revenue / 100,
+      }
+    })
+  }, [dailyRevenueInPeriod])
 
   return (
     <Card className="col-span-6">
@@ -35,14 +57,25 @@ export function RevenueChart() {
           </CardTitle>
           <CardDescription> Receita diária no período</CardDescription>
         </div>
+
+        <div className="flex items-center gap-3">
+          <Label>
+            Período
+          </Label>
+
+          <DateRangePicker
+            date={dateRange}
+            onDateChange={setDateRange}
+          />
+        </div>
       </CardHeader>
       <CardContent>
         {
-          dailyRevenueInPeriod && (
+          chartData && (
             <ResponsiveContainer width="100%" height={240}>
               <LineChart
 
-                data={dailyRevenueInPeriod}
+                data={chartData}
                 style={{ fontSize: 12 }}
               >
                 <YAxis
@@ -50,7 +83,7 @@ export function RevenueChart() {
                   stroke="#888"
                   tickLine={false}
                   tickFormatter={
-                    (value: number) => (value / 100).toLocaleString('pt-PT', {
+                    (value: number) => value.toLocaleString('pt-PT', {
                       style: 'currency',
                       currency: 'MZN',
                     })
