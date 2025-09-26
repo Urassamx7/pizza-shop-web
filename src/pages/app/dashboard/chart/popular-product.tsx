@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { useQuery } from '@tanstack/react-query'
-import { BarChart } from 'lucide-react'
+import { BarChart, Loader2 } from 'lucide-react'
 import {
   ResponsiveContainer,
   PieChart, Pie,
@@ -44,58 +44,59 @@ export function PopularProductChart() {
       </CardHeader>
       <CardContent>
         {
-          popularProducts && (
-            <ResponsiveContainer width="100%" height={240}>
-              <PieChart>
+          popularProducts
+            ? (
+              <ResponsiveContainer width="100%" height={240}>
+                <PieChart>
 
-                <Pie
-                  data={popularProducts}
-                  dataKey="amount"
-                  nameKey="product"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={90}
-                  innerRadius={64}
-                  strokeWidth={8}
-                  label={(props) => {
-                    const {
-                      cx,
-                      cy,
-                      midAngle,
-                      innerRadius,
-                      outerRadius,
-                      value,
-                      index,
-                    } = props as any
-                    const RADIAN = Math.PI / 180
-                    const radius = 12 + innerRadius + (outerRadius - innerRadius)
-                    const x = cx + radius * Math.cos(-midAngle * RADIAN)
-                    const y = cy + radius * Math.sin(-midAngle * RADIAN)
+                  <Pie
+                    data={popularProducts}
+                    dataKey="amount"
+                    nameKey="product"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    innerRadius={64}
+                    strokeWidth={8}
+                    label={(props) => {
+                      const {
+                        cx,
+                        cy,
+                        midAngle,
+                        innerRadius,
+                        outerRadius,
+                        value,
+                        index,
+                      } = props as any
+                      const RADIAN = Math.PI / 180
+                      const radius = 12 + innerRadius + (outerRadius - innerRadius)
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN)
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN)
 
-                    return (
-                      <text
-                        x={x}
-                        y={y}
-                        className="fill-muted-foreground text-xs"
-                        textAnchor={x > cx
-                          ? 'start'
-                          : 'end'}
-                        dominantBaseline="central"
-                      >
-                        {
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          className="fill-muted-foreground text-xs"
+                          textAnchor={x > cx
+                            ? 'start'
+                            : 'end'}
+                          dominantBaseline="central"
+                        >
+                          {
                         popularProducts[index].product.length > 12
                           ? popularProducts[index].product
                               .substring(0, 12)
                               .concat('...')
                           : popularProducts[index].product
 }
-                        ({value})
-                      </text>
-                    )
-                  }}
-                  labelLine={false}
-                >
-                  {
+                          ({value})
+                        </text>
+                      )
+                    }}
+                    labelLine={false}
+                  >
+                    {
                     popularProducts.map((_, index) => {
                       return (
                         <Cell
@@ -106,11 +107,16 @@ export function PopularProductChart() {
                       )
                     })
                 }
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          )
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+              )
+            : (
+              <div className="flex h-[240px] w-full items-center justify-center">
+                <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+              </div>
+              )
         }
       </CardContent>
     </Card>
